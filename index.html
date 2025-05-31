@@ -254,15 +254,6 @@
                 gap: 1rem;
             }
         }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
     </style>
 </head>
 <body>
@@ -334,10 +325,6 @@
             </div>
 
             <div class="download-controls">
-                <input type="file" id="midiUpload" accept=".mid,.midi" style="display: none;">
-                <input type="file" id="mp3Upload" accept=".mp3,.wav,.ogg" style="display: none;">
-                <button class="download-btn" id="uploadMidi">Upload MIDI</button>
-                <button class="download-btn" id="uploadMp3">Upload Audio</button>
                 <button class="download-btn" id="downloadMidi">Download MIDI</button>
                 <button class="download-btn" id="downloadMp3">Download MP3</button>
             </div>
@@ -357,11 +344,11 @@
 
         <div class="stats">
             <div class="stat-card">
-                <div class="stat-value" id="noteCount">101</div>
+                <div class="stat-value" id="noteCount">92</div>
                 <div class="stat-label">Total Notes</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="duration">16.1s</div>
+                <div class="stat-value" id="duration">29.0s</div>
                 <div class="stat-label">Duration</div>
             </div>
             <div class="stat-card">
@@ -375,8 +362,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.2/build/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/midi-parser-js@4.0.4/dist/midi-parser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.2/build/MidiWriter.min.js"></script>
     <script>
         class MidiSmoother {
             constructor() {
@@ -401,16 +387,15 @@
                 
                 this.recordingData = {
                     "recordingInfo": {
-                        "totalNotes": 101,
-                        "totalDuration": 16096,
-                        "timestamp": "2025-05-31T03:32:48.453Z"
+                        "totalNotes": 92,
+                        "totalDuration": 29004,
+                        "timestamp": "2025-05-31T03:55:11.060Z"
                     },
-                    "notes": [{"note": "A#", "octave": 5, "frequency": 955.54, "midiNote": 82, "startTime": 1657, "duration": 142, "startTimeSeconds": 1.66, "durationSeconds": 0.14}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 1569, "duration": 710, "startTimeSeconds": 1.57, "durationSeconds": 0.71}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 1569, "duration": 744, "startTimeSeconds": 1.57, "durationSeconds": 0.74}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 2390, "duration": 174, "startTimeSeconds": 2.39, "durationSeconds": 0.17}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 2459, "duration": 168, "startTimeSeconds": 2.46, "durationSeconds": 0.17}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 1964, "duration": 766, "startTimeSeconds": 1.96, "durationSeconds": 0.77}, {"note": "A", "octave": 5, "frequency": 880.17, "midiNote": 81, "startTime": 2578, "duration": 367, "startTimeSeconds": 2.58, "durationSeconds": 0.37}, {"note": "A", "octave": 6, "frequency": 1752.26, "midiNote": 93, "startTime": 2834, "duration": 159, "startTimeSeconds": 2.83, "durationSeconds": 0.16}, {"note": "F", "octave": 6, "frequency": 1388.89, "midiNote": 89, "startTime": 2821, "duration": 221, "startTimeSeconds": 2.82, "durationSeconds": 0.22}, {"note": "A", "octave": 5, "frequency": 869.4, "midiNote": 81, "startTime": 2993, "duration": 113, "startTimeSeconds": 2.99, "durationSeconds": 0.11}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 3106, "duration": 283, "startTimeSeconds": 3.11, "durationSeconds": 0.28}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 3544, "duration": 182, "startTimeSeconds": 3.54, "durationSeconds": 0.18}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 3987, "duration": 145, "startTimeSeconds": 3.99, "durationSeconds": 0.15}, {"note": "A", "octave": 6, "frequency": 1752.26, "midiNote": 93, "startTime": 3049, "duration": 1180, "startTimeSeconds": 3.05, "durationSeconds": 1.18}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 4145, "duration": 112, "startTimeSeconds": 4.15, "durationSeconds": 0.11}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 3448, "duration": 866, "startTimeSeconds": 3.45, "durationSeconds": 0.87}, {"note": "B", "octave": 5, "frequency": 990.53, "midiNote": 83, "startTime": 4229, "duration": 125, "startTimeSeconds": 4.23, "durationSeconds": 0.13}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 4354, "duration": 154, "startTimeSeconds": 4.35, "durationSeconds": 0.15}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 4285, "duration": 257, "startTimeSeconds": 4.29, "durationSeconds": 0.26}, {"note": "C#", "octave": 6, "frequency": 1111.65, "midiNote": 85, "startTime": 4599, "duration": 165, "startTimeSeconds": 4.6, "durationSeconds": 0.17}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 4743, "duration": 132, "startTimeSeconds": 4.74, "durationSeconds": 0.13}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 4764, "duration": 160, "startTimeSeconds": 4.76, "durationSeconds": 0.16}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 4425, "duration": 673, "startTimeSeconds": 4.43, "durationSeconds": 0.67}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 5098, "duration": 164, "startTimeSeconds": 5.1, "durationSeconds": 0.16}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 5056, "duration": 230, "startTimeSeconds": 5.06, "durationSeconds": 0.23}, {"note": "B", "octave": 5, "frequency": 993.22, "midiNote": 83, "startTime": 5335, "duration": 146, "startTimeSeconds": 5.34, "durationSeconds": 0.15}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 5029, "duration": 562, "startTimeSeconds": 5.03, "durationSeconds": 0.56}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 5481, "duration": 159, "startTimeSeconds": 5.48, "durationSeconds": 0.16}, {"note": "D#", "octave": 5, "frequency": 624.46, "midiNote": 75, "startTime": 5431, "duration": 330, "startTimeSeconds": 5.43, "durationSeconds": 0.33}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 5850, "duration": 144, "startTimeSeconds": 5.85, "durationSeconds": 0.14}, {"note": "D#", "octave": 6, "frequency": 1238.16, "midiNote": 87, "startTime": 5761, "duration": 261, "startTimeSeconds": 5.76, "durationSeconds": 0.26}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 5882, "duration": 202, "startTimeSeconds": 5.88, "durationSeconds": 0.2}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 5674, "duration": 563, "startTimeSeconds": 5.67, "durationSeconds": 0.56}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 6194, "duration": 104, "startTimeSeconds": 6.19, "durationSeconds": 0.1}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 6341, "duration": 514, "startTimeSeconds": 6.34, "durationSeconds": 0.51}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 6084, "duration": 860, "startTimeSeconds": 6.08, "durationSeconds": 0.86}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 6863, "duration": 151, "startTimeSeconds": 6.86, "durationSeconds": 0.15}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 7028, "duration": 103, "startTimeSeconds": 7.03, "durationSeconds": 0.1}, {"note": "F#", "octave": 6, "frequency": 1472.33, "midiNote": 90, "startTime": 6902, "duration": 320, "startTimeSeconds": 6.9, "durationSeconds": 0.32}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 7049, "duration": 199, "startTimeSeconds": 7.05, "durationSeconds": 0.2}, {"note": "C", "octave": 5, "frequency": 527.56, "midiNote": 72, "startTime": 7195, "duration": 187, "startTimeSeconds": 7.2, "durationSeconds": 0.19}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 7340, "duration": 146, "startTimeSeconds": 7.34, "durationSeconds": 0.15}, {"note": "A#", "octave": 5, "frequency": 942.08, "midiNote": 82, "startTime": 7346, "duration": 140, "startTimeSeconds": 7.35, "durationSeconds": 0.14}, {"note": "A#", "octave": 5, "frequency": 955.54, "midiNote": 82, "startTime": 7666, "duration": 206, "startTimeSeconds": 7.67, "durationSeconds": 0.21}, {"note": "F", "octave": 5, "frequency": 694.45, "midiNote": 77, "startTime": 7561, "duration": 356, "startTimeSeconds": 7.56, "durationSeconds": 0.36}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 8093, "duration": 151, "startTimeSeconds": 8.09, "durationSeconds": 0.15}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 7471, "duration": 939, "startTimeSeconds": 7.47, "durationSeconds": 0.94}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 8432, "duration": 221, "startTimeSeconds": 8.43, "durationSeconds": 0.22}, {"note": "A", "octave": 5, "frequency": 885.55, "midiNote": 81, "startTime": 8667, "duration": 159, "startTimeSeconds": 8.67, "durationSeconds": 0.16}, {"note": "A", "octave": 6, "frequency": 1768.41, "midiNote": 93, "startTime": 8693, "duration": 141, "startTimeSeconds": 8.69, "durationSeconds": 0.14}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 8847, "duration": 159, "startTimeSeconds": 8.85, "durationSeconds": 0.16}, {"note": "A", "octave": 5, "frequency": 880.17, "midiNote": 81, "startTime": 8896, "duration": 145, "startTimeSeconds": 8.9, "durationSeconds": 0.15}, {"note": "F", "octave": 6, "frequency": 1399.66, "midiNote": 89, "startTime": 7917, "duration": 1172, "startTimeSeconds": 7.92, "durationSeconds": 1.17}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 9133, "duration": 188, "startTimeSeconds": 9.13, "durationSeconds": 0.19}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 9333, "duration": 118, "startTimeSeconds": 9.33, "durationSeconds": 0.12}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 9611, "duration": 187, "startTimeSeconds": 9.61, "durationSeconds": 0.19}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 9020, "duration": 1064, "startTimeSeconds": 9.02, "durationSeconds": 1.06}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 9944, "duration": 349, "startTimeSeconds": 9.94, "durationSeconds": 0.35}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 9472, "duration": 862, "startTimeSeconds": 9.47, "durationSeconds": 0.86}, {"note": "F", "octave": 6, "frequency": 1386.2, "midiNote": 89, "startTime": 10342, "duration": 178, "startTimeSeconds": 10.34, "durationSeconds": 0.18}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 10293, "duration": 324, "startTimeSeconds": 10.29, "durationSeconds": 0.32}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 10361, "duration": 307, "startTimeSeconds": 10.36, "durationSeconds": 0.31}, {"note": "C#", "octave": 6, "frequency": 1114.34, "midiNote": 85, "startTime": 10668, "duration": 138, "startTimeSeconds": 10.67, "durationSeconds": 0.14}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 10806, "duration": 166, "startTimeSeconds": 10.81, "durationSeconds": 0.17}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 10785, "duration": 243, "startTimeSeconds": 10.79, "durationSeconds": 0.24}, {"note": "B", "octave": 5, "frequency": 987.84, "midiNote": 83, "startTime": 10396, "duration": 695, "startTimeSeconds": 10.4, "durationSeconds": 0.7}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11091, "duration": 194, "startTimeSeconds": 11.09, "durationSeconds": 0.19}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 11098, "duration": 289, "startTimeSeconds": 11.1, "durationSeconds": 0.29}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 10972, "duration": 521, "startTimeSeconds": 10.97, "durationSeconds": 0.52}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11480, "duration": 172, "startTimeSeconds": 11.48, "durationSeconds": 0.17}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 11501, "duration": 248, "startTimeSeconds": 11.5, "durationSeconds": 0.25}, {"note": "D#", "octave": 5, "frequency": 624.46, "midiNote": 75, "startTime": 11501, "duration": 282, "startTimeSeconds": 11.5, "durationSeconds": 0.28}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11665, "duration": 118, "startTimeSeconds": 11.67, "durationSeconds": 0.12}, {"note": "D#", "octave": 6, "frequency": 1251.62, "midiNote": 87, "startTime": 11791, "duration": 243, "startTimeSeconds": 11.79, "durationSeconds": 0.24}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 11923, "duration": 132, "startTimeSeconds": 11.92, "durationSeconds": 0.13}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 11923, "duration": 200, "startTimeSeconds": 11.92, "durationSeconds": 0.2}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 11749, "duration": 496, "startTimeSeconds": 11.75, "durationSeconds": 0.5}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 12291, "duration": 624, "startTimeSeconds": 12.29, "durationSeconds": 0.62}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 12925, "duration": 121, "startTimeSeconds": 12.93, "durationSeconds": 0.12}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 12123, "duration": 1076, "startTimeSeconds": 12.12, "durationSeconds": 1.08}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 13280, "duration": 103, "startTimeSeconds": 13.28, "durationSeconds": 0.1}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 13057, "duration": 363, "startTimeSeconds": 13.06, "durationSeconds": 0.36}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 13426, "duration": 104, "startTimeSeconds": 13.43, "durationSeconds": 0.1}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 12915, "duration": 727, "startTimeSeconds": 12.92, "durationSeconds": 0.73}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 13642, "duration": 172, "startTimeSeconds": 13.64, "durationSeconds": 0.17}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 13733, "duration": 101, "startTimeSeconds": 13.73, "durationSeconds": 0.1}, {"note": "A#", "octave": 5, "frequency": 952.84, "midiNote": 82, "startTime": 13834, "duration": 130, "startTimeSeconds": 13.83, "durationSeconds": 0.13}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 13907, "duration": 120, "startTimeSeconds": 13.91, "durationSeconds": 0.12}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 14089, "duration": 181, "startTimeSeconds": 14.09, "durationSeconds": 0.18}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 14284, "duration": 103, "startTimeSeconds": 14.28, "durationSeconds": 0.1}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 13502, "duration": 935, "startTimeSeconds": 13.5, "durationSeconds": 0.94}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 14465, "duration": 222, "startTimeSeconds": 14.47, "durationSeconds": 0.22}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 13985, "duration": 868, "startTimeSeconds": 13.99, "durationSeconds": 0.87}, {"note": "A", "octave": 5, "frequency": 885.55, "midiNote": 81, "startTime": 14721, "duration": 146, "startTimeSeconds": 14.72, "durationSeconds": 0.15}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 14888, "duration": 146, "startTimeSeconds": 14.89, "durationSeconds": 0.15}, {"note": "F", "octave": 6, "frequency": 1391.58, "midiNote": 89, "startTime": 14867, "duration": 308, "startTimeSeconds": 14.87, "durationSeconds": 0.31}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 15187, "duration": 167, "startTimeSeconds": 15.19, "durationSeconds": 0.17}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 15637, "duration": 200, "startTimeSeconds": 15.64, "durationSeconds": 0.2}, {"note": "A", "octave": 6, "frequency": 1768.41, "midiNote": 93, "startTime": 14845, "duration": 1202, "startTimeSeconds": 14.85, "durationSeconds": 1.2}, {"note": "F", "octave": 6, "frequency": 1394.27, "midiNote": 89, "startTime": 15485, "duration": 610, "startTimeSeconds": 15.49, "durationSeconds": 0.61}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 15972, "duration": 124, "startTimeSeconds": 15.97, "durationSeconds": 0.12}]
+                    "notes": [{"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 2634, "duration": 232, "startTimeSeconds": 2.63, "durationSeconds": 0.23}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 2634, "duration": 268, "startTimeSeconds": 2.63, "durationSeconds": 0.27}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 2888, "duration": 687, "startTimeSeconds": 2.89, "durationSeconds": 0.69}, {"note": "A", "octave": 5, "frequency": 885.55, "midiNote": 81, "startTime": 3978, "duration": 631, "startTimeSeconds": 3.98, "durationSeconds": 0.63}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 4845, "duration": 174, "startTimeSeconds": 4.85, "durationSeconds": 0.17}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 5227, "duration": 175, "startTimeSeconds": 5.23, "durationSeconds": 0.18}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 5519, "duration": 216, "startTimeSeconds": 5.52, "durationSeconds": 0.22}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 2923, "duration": 2972, "startTimeSeconds": 2.92, "durationSeconds": 2.97}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 5742, "duration": 172, "startTimeSeconds": 5.74, "durationSeconds": 0.17}, {"note": "F", "octave": 6, "frequency": 1391.58, "midiNote": 89, "startTime": 5914, "duration": 238, "startTimeSeconds": 5.91, "durationSeconds": 0.24}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 6113, "duration": 101, "startTimeSeconds": 6.11, "durationSeconds": 0.1}, {"note": "C#", "octave": 6, "frequency": 1103.58, "midiNote": 85, "startTime": 6338, "duration": 126, "startTimeSeconds": 6.34, "durationSeconds": 0.13}, {"note": "D", "octave": 5, "frequency": 578.7, "midiNote": 74, "startTime": 5818, "duration": 888, "startTimeSeconds": 5.82, "durationSeconds": 0.89}, {"note": "B", "octave": 5, "frequency": 993.22, "midiNote": 83, "startTime": 6769, "duration": 139, "startTimeSeconds": 6.77, "durationSeconds": 0.14}, {"note": "B", "octave": 4, "frequency": 497.96, "midiNote": 71, "startTime": 6936, "duration": 291, "startTimeSeconds": 6.94, "durationSeconds": 0.29}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 6533, "duration": 806, "startTimeSeconds": 6.53, "durationSeconds": 0.81}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 7235, "duration": 137, "startTimeSeconds": 7.24, "durationSeconds": 0.14}, {"note": "D#", "octave": 6, "frequency": 1238.16, "midiNote": 87, "startTime": 7478, "duration": 123, "startTimeSeconds": 7.48, "durationSeconds": 0.12}, {"note": "F#", "octave": 5, "frequency": 745.59, "midiNote": 78, "startTime": 6921, "duration": 931, "startTimeSeconds": 6.92, "durationSeconds": 0.93}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 7698, "duration": 1232, "startTimeSeconds": 7.7, "durationSeconds": 1.23}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 7915, "duration": 1738, "startTimeSeconds": 7.92, "durationSeconds": 1.74}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 9782, "duration": 127, "startTimeSeconds": 9.78, "durationSeconds": 0.13}, {"note": "A", "octave": 5, "frequency": 880.17, "midiNote": 81, "startTime": 10115, "duration": 140, "startTimeSeconds": 10.12, "durationSeconds": 0.14}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 8941, "duration": 1522, "startTimeSeconds": 8.94, "durationSeconds": 1.52}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 10401, "duration": 382, "startTimeSeconds": 10.4, "durationSeconds": 0.38}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 10810, "duration": 229, "startTimeSeconds": 10.81, "durationSeconds": 0.23}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11553, "duration": 125, "startTimeSeconds": 11.55, "durationSeconds": 0.13}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11782, "duration": 139, "startTimeSeconds": 11.78, "durationSeconds": 0.14}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 10484, "duration": 1463, "startTimeSeconds": 10.48, "durationSeconds": 1.46}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 11872, "duration": 112, "startTimeSeconds": 11.87, "durationSeconds": 0.11}, {"note": "F", "octave": 6, "frequency": 1391.58, "midiNote": 89, "startTime": 11984, "duration": 172, "startTimeSeconds": 11.98, "durationSeconds": 0.17}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 12150, "duration": 103, "startTimeSeconds": 12.15, "durationSeconds": 0.1}, {"note": "C#", "octave": 6, "frequency": 1114.34, "midiNote": 85, "startTime": 12344, "duration": 132, "startTimeSeconds": 12.34, "durationSeconds": 0.13}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 11998, "duration": 1006, "startTimeSeconds": 12, "durationSeconds": 1.01}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 13101, "duration": 160, "startTimeSeconds": 13.1, "durationSeconds": 0.16}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 12577, "duration": 795, "startTimeSeconds": 12.58, "durationSeconds": 0.8}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 13275, "duration": 131, "startTimeSeconds": 13.28, "durationSeconds": 0.13}, {"note": "D#", "octave": 6, "frequency": 1251.62, "midiNote": 87, "startTime": 13378, "duration": 279, "startTimeSeconds": 13.38, "durationSeconds": 0.28}, {"note": "B", "octave": 5, "frequency": 995.91, "midiNote": 83, "startTime": 13024, "duration": 1633, "startTimeSeconds": 13.02, "durationSeconds": 1.63}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 14670, "duration": 980, "startTimeSeconds": 14.67, "durationSeconds": 0.98}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 15699, "duration": 241, "startTimeSeconds": 15.7, "durationSeconds": 0.24}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 16073, "duration": 214, "startTimeSeconds": 16.07, "durationSeconds": 0.21}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 16433, "duration": 245, "startTimeSeconds": 16.43, "durationSeconds": 0.25}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 16844, "duration": 174, "startTimeSeconds": 16.84, "durationSeconds": 0.17}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 17230, "duration": 171, "startTimeSeconds": 17.23, "durationSeconds": 0.17}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 17585, "duration": 132, "startTimeSeconds": 17.59, "durationSeconds": 0.13}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 17817, "duration": 110, "startTimeSeconds": 17.82, "durationSeconds": 0.11}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 13740, "duration": 4214, "startTimeSeconds": 13.74, "durationSeconds": 4.21}, {"note": "B", "octave": 5, "frequency": 993.22, "midiNote": 83, "startTime": 17892, "duration": 111, "startTimeSeconds": 17.89, "durationSeconds": 0.11}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 17947, "duration": 133, "startTimeSeconds": 17.95, "durationSeconds": 0.13}, {"note": "F", "octave": 6, "frequency": 1391.58, "midiNote": 89, "startTime": 17995, "duration": 189, "startTimeSeconds": 18, "durationSeconds": 0.19}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 18184, "duration": 124, "startTimeSeconds": 18.18, "durationSeconds": 0.12}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 18031, "duration": 758, "startTimeSeconds": 18.03, "durationSeconds": 0.76}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 18802, "duration": 318, "startTimeSeconds": 18.8, "durationSeconds": 0.32}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 19144, "duration": 158, "startTimeSeconds": 19.14, "durationSeconds": 0.16}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 18613, "duration": 793, "startTimeSeconds": 18.61, "durationSeconds": 0.79}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 19310, "duration": 117, "startTimeSeconds": 19.31, "durationSeconds": 0.12}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 19420, "duration": 278, "startTimeSeconds": 19.42, "durationSeconds": 0.28}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 19186, "duration": 723, "startTimeSeconds": 19.19, "durationSeconds": 0.72}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 19927, "duration": 590, "startTimeSeconds": 19.93, "durationSeconds": 0.59}, {"note": "F#", "octave": 5, "frequency": 737.51, "midiNote": 78, "startTime": 20532, "duration": 442, "startTimeSeconds": 20.53, "durationSeconds": 0.44}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 20988, "duration": 616, "startTimeSeconds": 20.99, "durationSeconds": 0.62}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 21783, "duration": 206, "startTimeSeconds": 21.78, "durationSeconds": 0.21}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 22113, "duration": 223, "startTimeSeconds": 22.11, "durationSeconds": 0.22}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 19775, "duration": 2747, "startTimeSeconds": 19.78, "durationSeconds": 2.75}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 22476, "duration": 221, "startTimeSeconds": 22.48, "durationSeconds": 0.22}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 22967, "duration": 146, "startTimeSeconds": 22.97, "durationSeconds": 0.15}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 23344, "duration": 144, "startTimeSeconds": 23.34, "durationSeconds": 0.14}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 23626, "duration": 278, "startTimeSeconds": 23.63, "durationSeconds": 0.28}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 22538, "duration": 1457, "startTimeSeconds": 22.54, "durationSeconds": 1.46}, {"note": "B", "octave": 4, "frequency": 497.96, "midiNote": 71, "startTime": 23918, "duration": 293, "startTimeSeconds": 23.92, "durationSeconds": 0.29}, {"note": "F", "octave": 6, "frequency": 1383.51, "midiNote": 89, "startTime": 24038, "duration": 188, "startTimeSeconds": 24.04, "durationSeconds": 0.19}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 24226, "duration": 102, "startTimeSeconds": 24.23, "durationSeconds": 0.1}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 24654, "duration": 126, "startTimeSeconds": 24.65, "durationSeconds": 0.13}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 24065, "duration": 764, "startTimeSeconds": 24.07, "durationSeconds": 0.76}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 24780, "duration": 181, "startTimeSeconds": 24.78, "durationSeconds": 0.18}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 24842, "duration": 153, "startTimeSeconds": 24.84, "durationSeconds": 0.15}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 24794, "duration": 385, "startTimeSeconds": 24.79, "durationSeconds": 0.39}, {"note": "B", "octave": 5, "frequency": 995.91, "midiNote": 83, "startTime": 25071, "duration": 108, "startTimeSeconds": 25.07, "durationSeconds": 0.11}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 25193, "duration": 239, "startTimeSeconds": 25.19, "durationSeconds": 0.24}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 25348, "duration": 105, "startTimeSeconds": 25.35, "durationSeconds": 0.11}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 25439, "duration": 257, "startTimeSeconds": 25.44, "durationSeconds": 0.26}, {"note": "D#", "octave": 5, "frequency": 624.46, "midiNote": 75, "startTime": 25193, "duration": 1351, "startTimeSeconds": 25.19, "durationSeconds": 1.35}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 26600, "duration": 132, "startTimeSeconds": 26.6, "durationSeconds": 0.13}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 26744, "duration": 264, "startTimeSeconds": 26.74, "durationSeconds": 0.26}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 27021, "duration": 195, "startTimeSeconds": 27.02, "durationSeconds": 0.2}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 27231, "duration": 486, "startTimeSeconds": 27.23, "durationSeconds": 0.49}, {"note": "F", "octave": 5, "frequency": 697.14, "midiNote": 77, "startTime": 27877, "duration": 146, "startTimeSeconds": 27.88, "durationSeconds": 0.15}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 28146, "duration": 224, "startTimeSeconds": 28.15, "durationSeconds": 0.22}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 25816, "duration": 2750, "startTimeSeconds": 25.82, "durationSeconds": 2.75}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 28494, "duration": 251, "startTimeSeconds": 28.49, "durationSeconds": 0.25}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 28582, "duration": 422, "startTimeSeconds": 28.58, "durationSeconds": 0.42}]
                 };
                 
                 this.initializeAudio();
                 this.setupControls();
-                this.setupFileUpload();
                 this.updateStats();
             }
 
@@ -515,212 +500,6 @@
 
                 downloadMidi.addEventListener('click', () => this.downloadMIDI());
                 downloadMp3.addEventListener('click', () => this.downloadMP3());
-            }
-
-            setupFileUpload() {
-                const midiUpload = document.getElementById('midiUpload');
-                const mp3Upload = document.getElementById('mp3Upload');
-                const uploadMidiBtn = document.getElementById('uploadMidi');
-                const uploadMp3Btn = document.getElementById('uploadMp3');
-
-                uploadMidiBtn.addEventListener('click', () => midiUpload.click());
-                uploadMp3Btn.addEventListener('click', () => mp3Upload.click());
-
-                midiUpload.addEventListener('change', (e) => this.handleMidiUpload(e));
-                mp3Upload.addEventListener('change', (e) => this.handleAudioUpload(e));
-            }
-
-            async handleMidiUpload(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const midiData = MidiParser.parse(new Uint8Array(arrayBuffer));
-                    
-                    const notes = this.convertMidiToNotes(midiData);
-                    this.recordingData = {
-                        recordingInfo: {
-                            totalNotes: notes.length,
-                            totalDuration: Math.max(...notes.map(n => n.startTime + n.duration)),
-                            timestamp: new Date().toISOString()
-                        },
-                        notes: notes
-                    };
-                    
-                    this.updateStats();
-                    this.stop(); // Reset playback
-                    document.getElementById('playBtn').textContent = '▶';
-                    
-                    // Show success message
-                    this.showNotification('MIDI file loaded successfully!');
-                } catch (error) {
-                    console.error('Error parsing MIDI file:', error);
-                    this.showNotification('Error loading MIDI file. Please try another file.');
-                }
-            }
-
-            async handleAudioUpload(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                try {
-                    if (!this.audioContext) {
-                        await this.initializeAudio();
-                    }
-
-                    const arrayBuffer = await file.arrayBuffer();
-                    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-                    
-                    // Simple audio analysis - extract dominant frequencies over time
-                    const notes = await this.analyzeAudioBuffer(audioBuffer);
-                    
-                    this.recordingData = {
-                        recordingInfo: {
-                            totalNotes: notes.length,
-                            totalDuration: audioBuffer.duration * 1000,
-                            timestamp: new Date().toISOString()
-                        },
-                        notes: notes
-                    };
-                    
-                    this.updateStats();
-                    this.stop();
-                    document.getElementById('playBtn').textContent = '▶';
-                    
-                    this.showNotification('Audio file analyzed and loaded!');
-                } catch (error) {
-                    console.error('Error processing audio file:', error);
-                    this.showNotification('Error loading audio file. Please try another file.');
-                }
-            }
-
-            convertMidiToNotes(midiData) {
-                const notes = [];
-                const ticksPerSecond = (midiData.timeDivision * 120) / 60; // Assuming 120 BPM
-                
-                midiData.track.forEach(track => {
-                    let currentTime = 0;
-                    
-                    track.event.forEach(event => {
-                        currentTime += event.deltaTime / ticksPerSecond;
-                        
-                        if (event.type === 9 && event.data[1] > 0) { // Note on
-                            const midiNote = event.data[0];
-                            const velocity = event.data[1];
-                            const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
-                            
-                            // Find corresponding note off
-                            let duration = 0.5; // Default duration
-                            let searchTime = currentTime;
-                            
-                            for (let i = track.event.indexOf(event) + 1; i < track.event.length; i++) {
-                                const nextEvent = track.event[i];
-                                searchTime += nextEvent.deltaTime / ticksPerSecond;
-                                
-                                if ((nextEvent.type === 8 || (nextEvent.type === 9 && nextEvent.data[1] === 0)) 
-                                    && nextEvent.data[0] === midiNote) {
-                                    duration = searchTime - currentTime;
-                                    break;
-                                }
-                            }
-                            
-                            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-                            const octave = Math.floor(midiNote / 12) - 1;
-                            const noteName = noteNames[midiNote % 12];
-                            
-                            notes.push({
-                                note: noteName,
-                                octave: octave,
-                                frequency: frequency,
-                                midiNote: midiNote,
-                                startTime: Math.round(currentTime * 1000),
-                                duration: Math.round(duration * 1000),
-                                startTimeSeconds: currentTime,
-                                durationSeconds: duration
-                            });
-                        }
-                    });
-                });
-                
-                return notes.sort((a, b) => a.startTime - b.startTime);
-            }
-
-            async analyzeAudioBuffer(audioBuffer) {
-                // Simple frequency analysis - this is a basic implementation
-                const notes = [];
-                const sampleRate = audioBuffer.sampleRate;
-                const channelData = audioBuffer.getChannelData(0);
-                const windowSize = 2048;
-                const overlap = windowSize / 2;
-                
-                for (let i = 0; i < channelData.length - windowSize; i += overlap) {
-                    const window = channelData.slice(i, i + windowSize);
-                    const frequency = this.findDominantFrequency(window, sampleRate);
-                    
-                    if (frequency > 80 && frequency < 2000) { // Musical range
-                        const startTime = i / sampleRate;
-                        const midiNote = Math.round(12 * Math.log2(frequency / 440) + 69);
-                        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-                        const octave = Math.floor(midiNote / 12) - 1;
-                        const noteName = noteNames[midiNote % 12];
-                        
-                        notes.push({
-                            note: noteName,
-                            octave: octave,
-                            frequency: frequency,
-                            midiNote: midiNote,
-                            startTime: Math.round(startTime * 1000),
-                            duration: Math.round((overlap / sampleRate) * 1000),
-                            startTimeSeconds: startTime,
-                            durationSeconds: overlap / sampleRate
-                        });
-                    }
-                }
-                
-                return this.consolidateNotes(notes);
-            }
-
-            findDominantFrequency(samples, sampleRate) {
-                // Simple autocorrelation-based pitch detection
-                const correlations = [];
-                const minPeriod = Math.floor(sampleRate / 800); // 800 Hz max
-                const maxPeriod = Math.floor(sampleRate / 80);  // 80 Hz min
-                
-                for (let period = minPeriod; period < maxPeriod; period++) {
-                    let correlation = 0;
-                    for (let i = 0; i < samples.length - period; i++) {
-                        correlation += samples[i] * samples[i + period];
-                    }
-                    correlations.push({period, correlation});
-                }
-                
-                const maxCorrelation = correlations.reduce((max, curr) => 
-                    curr.correlation > max.correlation ? curr : max, correlations[0]);
-                
-                return sampleRate / maxCorrelation.period;
-            }
-
-            consolidateNotes(notes) {
-                // Merge similar consecutive notes
-                const consolidated = [];
-                let currentNote = null;
-                
-                notes.forEach(note => {
-                    if (!currentNote || 
-                        Math.abs(currentNote.frequency - note.frequency) > 10 ||
-                        note.startTime - (currentNote.startTime + currentNote.duration) > 100) {
-                        if (currentNote) consolidated.push(currentNote);
-                        currentNote = { ...note };
-                    } else {
-                        // Extend current note
-                        currentNote.duration = note.startTime + note.duration - currentNote.startTime;
-                        currentNote.durationSeconds = currentNote.duration / 1000;
-                    }
-                });
-                
-                if (currentNote) consolidated.push(currentNote);
-                return consolidated;
             }
 
             async togglePlayback() {
@@ -920,60 +699,31 @@
             }
 
             downloadMIDI() {
-                try {
-                    const tracks = [];
-                    const track = new MidiWriter.Track();
+                const track = new MidiWriter.Track();
+                
+                this.recordingData.notes.forEach(noteData => {
+                    const velocity = 80;
+                    const ticks = Math.round((noteData.durationSeconds * this.sustainMultiplier) * 480); // 480 ticks per quarter note
+                    const startTicks = Math.round(noteData.startTimeSeconds * 480);
                     
-                    // Set tempo
-                    track.addEvent(new MidiWriter.MetaEvent({
-                        type: 'setTempo',
-                        data: [500000] // 120 BPM (500000 microseconds per quarter note)
+                    track.addEvent(new MidiWriter.NoteEvent({
+                        pitch: [noteData.midiNote],
+                        duration: ticks,
+                        velocity: velocity,
+                        startTick: startTicks
                     }));
-                    
-                    // Sort notes by start time
-                    const sortedNotes = [...this.recordingData.notes].sort((a, b) => a.startTime - b.startTime);
-                    
-                    sortedNotes.forEach((noteData, index) => {
-                        const velocity = 80;
-                        const durationTicks = Math.max(1, Math.round((noteData.durationSeconds * this.sustainMultiplier) * 480));
-                        const waitTicks = index === 0 ? 0 : Math.round((noteData.startTimeSeconds - sortedNotes[index - 1].startTimeSeconds) * 480);
-                        
-                        if (waitTicks > 0) {
-                            track.addEvent(new MidiWriter.NoteEvent({
-                                pitch: [noteData.midiNote],
-                                duration: 'T0', // No duration for the wait
-                                velocity: 0,
-                                tick: waitTicks
-                            }));
-                        }
-                        
-                        track.addEvent(new MidiWriter.NoteEvent({
-                            pitch: [noteData.midiNote],
-                            duration: `T${durationTicks}`,
-                            velocity: velocity
-                        }));
-                    });
-                    
-                    tracks.push(track);
-                    const write = new MidiWriter.Writer(tracks);
-                    const midiData = write.buildFile();
-                    
-                    const blob = new Blob([midiData], { type: 'audio/midi' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `midi-smoother-enhanced-${Date.now()}.mid`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    
-                    URL.revokeObjectURL(url);
-                    this.showNotification('MIDI file downloaded successfully!');
-                } catch (error) {
-                    console.error('Error creating MIDI file:', error);
-                    this.showNotification('Error creating MIDI file. Please try again.');
-                }
+                });
+                
+                const write = new MidiWriter.Writer(track);
+                const blob = new Blob([write.buildFile()], { type: 'audio/midi' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'midi-smoother-enhanced.mid';
+                a.click();
+                
+                URL.revokeObjectURL(url);
             }
 
             async downloadMP3() {
@@ -1018,25 +768,6 @@
                     this.stop();
                     document.getElementById('playBtn').textContent = '▶';
                 }, totalDuration * 1000);
-            }
-
-            showNotification(message) {
-                // Create a simple notification
-                const notification = document.createElement('div');
-                notification.textContent = message;
-                notification.style.cssText = `
-                    position: fixed; top: 20px; right: 20px; z-index: 1000;
-                    background: linear-gradient(45deg, #00f5ff, #ff00ff);
-                    color: white; padding: 1rem 2rem; border-radius: 10px;
-                    box-shadow: 0 4px 20px rgba(0, 245, 255, 0.4);
-                    animation: slideIn 0.3s ease;
-                `;
-                
-                document.body.appendChild(notification);
-                setTimeout(() => {
-                    notification.style.animation = 'slideOut 0.3s ease forwards';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
             }
         }
 
