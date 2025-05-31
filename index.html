@@ -254,6 +254,15 @@
                 gap: 1rem;
             }
         }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -325,6 +334,10 @@
             </div>
 
             <div class="download-controls">
+                <input type="file" id="midiUpload" accept=".mid,.midi" style="display: none;">
+                <input type="file" id="mp3Upload" accept=".mp3,.wav,.ogg" style="display: none;">
+                <button class="download-btn" id="uploadMidi">Upload MIDI</button>
+                <button class="download-btn" id="uploadMp3">Upload Audio</button>
                 <button class="download-btn" id="downloadMidi">Download MIDI</button>
                 <button class="download-btn" id="downloadMp3">Download MP3</button>
             </div>
@@ -363,6 +376,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.2/build/MidiWriter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/midi-parser-js@4.0.4/src/midi-parser.min.js"></script>
     <script>
         class MidiSmoother {
             constructor() {
@@ -396,6 +410,7 @@
                 
                 this.initializeAudio();
                 this.setupControls();
+                this.setupFileUpload();
                 this.updateStats();
             }
 
@@ -500,6 +515,212 @@
 
                 downloadMidi.addEventListener('click', () => this.downloadMIDI());
                 downloadMp3.addEventListener('click', () => this.downloadMP3());
+            }
+
+            setupFileUpload() {
+                const midiUpload = document.getElementById('midiUpload');
+                const mp3Upload = document.getElementById('mp3Upload');
+                const uploadMidiBtn = document.getElementById('uploadMidi');
+                const uploadMp3Btn = document.getElementById('uploadMp3');
+
+                uploadMidiBtn.addEventListener('click', () => midiUpload.click());
+                uploadMp3Btn.addEventListener('click', () => mp3Upload.click());
+
+                midiUpload.addEventListener('change', (e) => this.handleMidiUpload(e));
+                mp3Upload.addEventListener('change', (e) => this.handleAudioUpload(e));
+            }
+
+            async handleMidiUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const midiData = MidiParser.parse(new Uint8Array(arrayBuffer));
+                    
+                    const notes = this.convertMidiToNotes(midiData);
+                    this.recordingData = {
+                        recordingInfo: {
+                            totalNotes: notes.length,
+                            totalDuration: Math.max(...notes.map(n => n.startTime + n.duration)),
+                            timestamp: new Date().toISOString()
+                        },
+                        notes: notes
+                    };
+                    
+                    this.updateStats();
+                    this.stop(); // Reset playback
+                    document.getElementById('playBtn').textContent = '▶';
+                    
+                    // Show success message
+                    this.showNotification('MIDI file loaded successfully!');
+                } catch (error) {
+                    console.error('Error parsing MIDI file:', error);
+                    this.showNotification('Error loading MIDI file. Please try another file.');
+                }
+            }
+
+            async handleAudioUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    if (!this.audioContext) {
+                        await this.initializeAudio();
+                    }
+
+                    const arrayBuffer = await file.arrayBuffer();
+                    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                    
+                    // Simple audio analysis - extract dominant frequencies over time
+                    const notes = await this.analyzeAudioBuffer(audioBuffer);
+                    
+                    this.recordingData = {
+                        recordingInfo: {
+                            totalNotes: notes.length,
+                            totalDuration: audioBuffer.duration * 1000,
+                            timestamp: new Date().toISOString()
+                        },
+                        notes: notes
+                    };
+                    
+                    this.updateStats();
+                    this.stop();
+                    document.getElementById('playBtn').textContent = '▶';
+                    
+                    this.showNotification('Audio file analyzed and loaded!');
+                } catch (error) {
+                    console.error('Error processing audio file:', error);
+                    this.showNotification('Error loading audio file. Please try another file.');
+                }
+            }
+
+            convertMidiToNotes(midiData) {
+                const notes = [];
+                const ticksPerSecond = (midiData.timeDivision * 120) / 60; // Assuming 120 BPM
+                
+                midiData.track.forEach(track => {
+                    let currentTime = 0;
+                    
+                    track.event.forEach(event => {
+                        currentTime += event.deltaTime / ticksPerSecond;
+                        
+                        if (event.type === 9 && event.data[1] > 0) { // Note on
+                            const midiNote = event.data[0];
+                            const velocity = event.data[1];
+                            const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+                            
+                            // Find corresponding note off
+                            let duration = 0.5; // Default duration
+                            let searchTime = currentTime;
+                            
+                            for (let i = track.event.indexOf(event) + 1; i < track.event.length; i++) {
+                                const nextEvent = track.event[i];
+                                searchTime += nextEvent.deltaTime / ticksPerSecond;
+                                
+                                if ((nextEvent.type === 8 || (nextEvent.type === 9 && nextEvent.data[1] === 0)) 
+                                    && nextEvent.data[0] === midiNote) {
+                                    duration = searchTime - currentTime;
+                                    break;
+                                }
+                            }
+                            
+                            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                            const octave = Math.floor(midiNote / 12) - 1;
+                            const noteName = noteNames[midiNote % 12];
+                            
+                            notes.push({
+                                note: noteName,
+                                octave: octave,
+                                frequency: frequency,
+                                midiNote: midiNote,
+                                startTime: Math.round(currentTime * 1000),
+                                duration: Math.round(duration * 1000),
+                                startTimeSeconds: currentTime,
+                                durationSeconds: duration
+                            });
+                        }
+                    });
+                });
+                
+                return notes.sort((a, b) => a.startTime - b.startTime);
+            }
+
+            async analyzeAudioBuffer(audioBuffer) {
+                // Simple frequency analysis - this is a basic implementation
+                const notes = [];
+                const sampleRate = audioBuffer.sampleRate;
+                const channelData = audioBuffer.getChannelData(0);
+                const windowSize = 2048;
+                const overlap = windowSize / 2;
+                
+                for (let i = 0; i < channelData.length - windowSize; i += overlap) {
+                    const window = channelData.slice(i, i + windowSize);
+                    const frequency = this.findDominantFrequency(window, sampleRate);
+                    
+                    if (frequency > 80 && frequency < 2000) { // Musical range
+                        const startTime = i / sampleRate;
+                        const midiNote = Math.round(12 * Math.log2(frequency / 440) + 69);
+                        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                        const octave = Math.floor(midiNote / 12) - 1;
+                        const noteName = noteNames[midiNote % 12];
+                        
+                        notes.push({
+                            note: noteName,
+                            octave: octave,
+                            frequency: frequency,
+                            midiNote: midiNote,
+                            startTime: Math.round(startTime * 1000),
+                            duration: Math.round((overlap / sampleRate) * 1000),
+                            startTimeSeconds: startTime,
+                            durationSeconds: overlap / sampleRate
+                        });
+                    }
+                }
+                
+                return this.consolidateNotes(notes);
+            }
+
+            findDominantFrequency(samples, sampleRate) {
+                // Simple autocorrelation-based pitch detection
+                const correlations = [];
+                const minPeriod = Math.floor(sampleRate / 800); // 800 Hz max
+                const maxPeriod = Math.floor(sampleRate / 80);  // 80 Hz min
+                
+                for (let period = minPeriod; period < maxPeriod; period++) {
+                    let correlation = 0;
+                    for (let i = 0; i < samples.length - period; i++) {
+                        correlation += samples[i] * samples[i + period];
+                    }
+                    correlations.push({period, correlation});
+                }
+                
+                const maxCorrelation = correlations.reduce((max, curr) => 
+                    curr.correlation > max.correlation ? curr : max, correlations[0]);
+                
+                return sampleRate / maxCorrelation.period;
+            }
+
+            consolidateNotes(notes) {
+                // Merge similar consecutive notes
+                const consolidated = [];
+                let currentNote = null;
+                
+                notes.forEach(note => {
+                    if (!currentNote || 
+                        Math.abs(currentNote.frequency - note.frequency) > 10 ||
+                        note.startTime - (currentNote.startTime + currentNote.duration) > 100) {
+                        if (currentNote) consolidated.push(currentNote);
+                        currentNote = { ...note };
+                    } else {
+                        // Extend current note
+                        currentNote.duration = note.startTime + note.duration - currentNote.startTime;
+                        currentNote.durationSeconds = currentNote.duration / 1000;
+                    }
+                });
+                
+                if (currentNote) consolidated.push(currentNote);
+                return consolidated;
             }
 
             async togglePlayback() {
@@ -699,31 +920,60 @@
             }
 
             downloadMIDI() {
-                const track = new MidiWriter.Track();
-                
-                this.recordingData.notes.forEach(noteData => {
-                    const velocity = 80;
-                    const ticks = Math.round((noteData.durationSeconds * this.sustainMultiplier) * 480); // 480 ticks per quarter note
-                    const startTicks = Math.round(noteData.startTimeSeconds * 480);
+                try {
+                    const tracks = [];
+                    const track = new MidiWriter.Track();
                     
-                    track.addEvent(new MidiWriter.NoteEvent({
-                        pitch: [noteData.midiNote],
-                        duration: ticks,
-                        velocity: velocity,
-                        startTick: startTicks
+                    // Set tempo
+                    track.addEvent(new MidiWriter.MetaEvent({
+                        type: 'setTempo',
+                        data: [500000] // 120 BPM (500000 microseconds per quarter note)
                     }));
-                });
-                
-                const write = new MidiWriter.Writer(track);
-                const blob = new Blob([write.buildFile()], { type: 'audio/midi' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'midi-smoother-enhanced.mid';
-                a.click();
-                
-                URL.revokeObjectURL(url);
+                    
+                    // Sort notes by start time
+                    const sortedNotes = [...this.recordingData.notes].sort((a, b) => a.startTime - b.startTime);
+                    
+                    sortedNotes.forEach((noteData, index) => {
+                        const velocity = 80;
+                        const durationTicks = Math.max(1, Math.round((noteData.durationSeconds * this.sustainMultiplier) * 480));
+                        const waitTicks = index === 0 ? 0 : Math.round((noteData.startTimeSeconds - sortedNotes[index - 1].startTimeSeconds) * 480);
+                        
+                        if (waitTicks > 0) {
+                            track.addEvent(new MidiWriter.NoteEvent({
+                                pitch: [noteData.midiNote],
+                                duration: 'T0', // No duration for the wait
+                                velocity: 0,
+                                tick: waitTicks
+                            }));
+                        }
+                        
+                        track.addEvent(new MidiWriter.NoteEvent({
+                            pitch: [noteData.midiNote],
+                            duration: `T${durationTicks}`,
+                            velocity: velocity
+                        }));
+                    });
+                    
+                    tracks.push(track);
+                    const write = new MidiWriter.Writer(tracks);
+                    const midiData = write.buildFile();
+                    
+                    const blob = new Blob([midiData], { type: 'audio/midi' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `midi-smoother-enhanced-${Date.now()}.mid`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    URL.revokeObjectURL(url);
+                    this.showNotification('MIDI file downloaded successfully!');
+                } catch (error) {
+                    console.error('Error creating MIDI file:', error);
+                    this.showNotification('Error creating MIDI file. Please try again.');
+                }
             }
 
             async downloadMP3() {
@@ -768,6 +1018,25 @@
                     this.stop();
                     document.getElementById('playBtn').textContent = '▶';
                 }, totalDuration * 1000);
+            }
+
+            showNotification(message) {
+                // Create a simple notification
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; z-index: 1000;
+                    background: linear-gradient(45deg, #00f5ff, #ff00ff);
+                    color: white; padding: 1rem 2rem; border-radius: 10px;
+                    box-shadow: 0 4px 20px rgba(0, 245, 255, 0.4);
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
             }
         }
 
