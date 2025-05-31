@@ -204,6 +204,41 @@
             margin-top: 0.5rem;
         }
 
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .download-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -249,6 +284,49 @@
                     <input type="range" class="slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
                     <span id="volumeValue">70%</span>
                 </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Sustain</label>
+                    <input type="range" class="slider" id="sustainSlider" min="0.5" max="5" step="0.1" value="1">
+                    <span id="sustainValue">1.0x</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Smoothing</label>
+                    <input type="range" class="slider" id="smoothingSlider" min="0" max="1" step="0.1" value="0.3">
+                    <span id="smoothingValue">30%</span>
+                </div>
+            </div>
+
+            <div class="advanced-controls">
+                <div class="control-group">
+                    <label class="control-label">Reverb Decay</label>
+                    <input type="range" class="slider" id="reverbDecaySlider" min="0.5" max="5" step="0.1" value="2">
+                    <span id="reverbDecayValue">2.0s</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Filter Cutoff</label>
+                    <input type="range" class="slider" id="filterSlider" min="200" max="8000" step="100" value="4000">
+                    <span id="filterValue">4000Hz</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Attack</label>
+                    <input type="range" class="slider" id="attackSlider" min="0.001" max="0.2" step="0.01" value="0.02">
+                    <span id="attackValue">20ms</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Release</label>
+                    <input type="range" class="slider" id="releaseSlider" min="0.1" max="2" step="0.1" value="0.3">
+                    <span id="releaseValue">300ms</span>
+                </div>
+            </div>
+
+            <div class="download-controls">
+                <button class="download-btn" id="downloadMidi">Download MIDI</button>
+                <button class="download-btn" id="downloadMp3">Download MP3</button>
             </div>
 
             <div class="progress-container">
@@ -284,6 +362,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.2/build/MidiWriter.min.js"></script>
     <script>
         class MidiSmoother {
             constructor() {
@@ -297,6 +376,14 @@
                 this.currentNotes = new Map();
                 this.scheduledNotes = [];
                 this.tempoMultiplier = 1;
+                this.sustainMultiplier = 1;
+                this.smoothingAmount = 0.3;
+                this.reverbDecay = 2;
+                this.filterCutoff = 4000;
+                this.attackTime = 0.02;
+                this.releaseTime = 0.3;
+                this.recordedBuffer = null;
+                this.mediaRecorder = null;
                 
                 this.recordingData = {
                     "recordingInfo": {
@@ -333,14 +420,14 @@
             }
 
             async createReverbImpulse() {
-                const length = this.audioContext.sampleRate * 2;
+                const length = this.audioContext.sampleRate * this.reverbDecay;
                 const impulse = this.audioContext.createBuffer(2, length, this.audioContext.sampleRate);
                 
                 for (let channel = 0; channel < 2; channel++) {
                     const channelData = impulse.getChannelData(channel);
                     for (let i = 0; i < length; i++) {
                         const decay = Math.pow(1 - i / length, 2);
-                        channelData[i] = (Math.random() * 2 - 1) * decay * 0.3;
+                        channelData[i] = (Math.random() * 2 - 1) * decay * 0.4;
                     }
                 }
                 
@@ -352,6 +439,14 @@
                 const tempoSlider = document.getElementById('tempoSlider');
                 const reverbSlider = document.getElementById('reverbSlider');
                 const volumeSlider = document.getElementById('volumeSlider');
+                const sustainSlider = document.getElementById('sustainSlider');
+                const smoothingSlider = document.getElementById('smoothingSlider');
+                const reverbDecaySlider = document.getElementById('reverbDecaySlider');
+                const filterSlider = document.getElementById('filterSlider');
+                const attackSlider = document.getElementById('attackSlider');
+                const releaseSlider = document.getElementById('releaseSlider');
+                const downloadMidi = document.getElementById('downloadMidi');
+                const downloadMp3 = document.getElementById('downloadMp3');
 
                 playBtn.addEventListener('click', () => this.togglePlayback());
                 
@@ -371,6 +466,40 @@
                     this.masterGain.gain.value = volume;
                     document.getElementById('volumeValue').textContent = `${Math.round(volume * 100)}%`;
                 });
+
+                sustainSlider.addEventListener('input', (e) => {
+                    this.sustainMultiplier = parseFloat(e.target.value);
+                    document.getElementById('sustainValue').textContent = `${this.sustainMultiplier.toFixed(1)}x`;
+                });
+
+                smoothingSlider.addEventListener('input', (e) => {
+                    this.smoothingAmount = parseFloat(e.target.value);
+                    document.getElementById('smoothingValue').textContent = `${Math.round(this.smoothingAmount * 100)}%`;
+                });
+
+                reverbDecaySlider.addEventListener('input', async (e) => {
+                    this.reverbDecay = parseFloat(e.target.value);
+                    document.getElementById('reverbDecayValue').textContent = `${this.reverbDecay.toFixed(1)}s`;
+                    await this.createReverbImpulse();
+                });
+
+                filterSlider.addEventListener('input', (e) => {
+                    this.filterCutoff = parseFloat(e.target.value);
+                    document.getElementById('filterValue').textContent = `${this.filterCutoff}Hz`;
+                });
+
+                attackSlider.addEventListener('input', (e) => {
+                    this.attackTime = parseFloat(e.target.value);
+                    document.getElementById('attackValue').textContent = `${Math.round(this.attackTime * 1000)}ms`;
+                });
+
+                releaseSlider.addEventListener('input', (e) => {
+                    this.releaseTime = parseFloat(e.target.value);
+                    document.getElementById('releaseValue').textContent = `${Math.round(this.releaseTime * 1000)}ms`;
+                });
+
+                downloadMidi.addEventListener('click', () => this.downloadMIDI());
+                downloadMp3.addEventListener('click', () => this.downloadMP3());
             }
 
             async togglePlayback() {
@@ -445,44 +574,54 @@
                 const oscillator = this.audioContext.createOscillator();
                 const gainNode = this.audioContext.createGain();
                 const filterNode = this.audioContext.createBiquadFilter();
+                const smoothingGain = this.audioContext.createGain();
                 
-                // Enhanced oscillator with multiple harmonics
+                // Enhanced oscillator with smoother waveform
                 oscillator.type = 'sawtooth';
                 oscillator.frequency.setValueAtTime(noteData.frequency, startTime);
                 
-                // Low-pass filter for warmth
-                filterNode.type = 'lowpass';
-                filterNode.frequency.setValueAtTime(noteData.frequency * 4, startTime);
-                filterNode.Q.setValueAtTime(1, startTime);
+                // Smoothing with portamento
+                if (this.smoothingAmount > 0) {
+                    const smoothTime = this.smoothingAmount * 0.1;
+                    oscillator.frequency.exponentialRampToValueAtTime(noteData.frequency, startTime + smoothTime);
+                }
                 
-                // ADSR envelope
-                const attackTime = 0.02;
+                // Enhanced low-pass filter
+                filterNode.type = 'lowpass';
+                filterNode.frequency.setValueAtTime(this.filterCutoff, startTime);
+                filterNode.Q.setValueAtTime(2, startTime);
+                
+                // Extended ADSR envelope with sustain multiplier
+                const extendedDuration = duration * this.sustainMultiplier;
                 const decayTime = 0.1;
                 const sustainLevel = 0.6;
-                const releaseTime = 0.3;
                 
                 gainNode.gain.setValueAtTime(0, startTime);
-                gainNode.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
-                gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
-                gainNode.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
-                gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+                gainNode.gain.linearRampToValueAtTime(0.8, startTime + this.attackTime);
+                gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + this.attackTime + decayTime);
+                gainNode.gain.setValueAtTime(sustainLevel, startTime + extendedDuration - this.releaseTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + extendedDuration);
+                
+                // Smoothing gain for note transitions
+                smoothingGain.gain.setValueAtTime(1, startTime);
                 
                 // Connect nodes
                 oscillator.connect(filterNode);
-                filterNode.connect(gainNode);
+                filterNode.connect(smoothingGain);
+                smoothingGain.connect(gainNode);
                 gainNode.connect(this.masterGain);
                 gainNode.connect(this.reverbGain);
                 
                 oscillator.start(startTime);
-                oscillator.stop(startTime + duration);
+                oscillator.stop(startTime + extendedDuration);
                 
                 // Visualization
-                this.visualizeNote(noteData, startTime, duration, index);
+                this.visualizeNote(noteData, startTime, extendedDuration, index);
                 
                 this.scheduledNotes.push({
                     source: oscillator,
                     startTime,
-                    duration,
+                    duration: extendedDuration,
                     noteData,
                     index
                 });
@@ -558,6 +697,78 @@
                 document.getElementById('duration').textContent = `${totalDurationSeconds.toFixed(1)}s`;
                 document.getElementById('totalTime').textContent = this.formatTime(totalDurationSeconds);
             }
+
+            downloadMIDI() {
+                const track = new MidiWriter.Track();
+                
+                this.recordingData.notes.forEach(noteData => {
+                    const velocity = 80;
+                    const ticks = Math.round((noteData.durationSeconds * this.sustainMultiplier) * 480); // 480 ticks per quarter note
+                    const startTicks = Math.round(noteData.startTimeSeconds * 480);
+                    
+                    track.addEvent(new MidiWriter.NoteEvent({
+                        pitch: [noteData.midiNote],
+                        duration: ticks,
+                        velocity: velocity,
+                        startTick: startTicks
+                    }));
+                });
+                
+                const write = new MidiWriter.Writer(track);
+                const blob = new Blob([write.buildFile()], { type: 'audio/midi' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'midi-smoother-enhanced.mid';
+                a.click();
+                
+                URL.revokeObjectURL(url);
+            }
+
+            async downloadMP3() {
+                if (!this.audioContext) {
+                    await this.initializeAudio();
+                }
+
+                // Create a media stream destination
+                const dest = this.audioContext.createMediaStreamDestination();
+                this.masterGain.connect(dest);
+                
+                const mediaRecorder = new MediaRecorder(dest.stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+                
+                const chunks = [];
+                mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'midi-smoother-enhanced.webm';
+                    a.click();
+                    
+                    URL.revokeObjectURL(url);
+                    this.masterGain.disconnect(dest);
+                };
+                
+                mediaRecorder.start();
+                
+                // Play the entire sequence for recording
+                this.pauseTime = 0;
+                this.play();
+                
+                // Stop recording after the full duration
+                const totalDuration = (this.recordingData.recordingInfo.totalDuration / 1000 / this.tempoMultiplier) + 2;
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                    this.stop();
+                    document.getElementById('playBtn').textContent = '▶';
+                }, totalDuration * 1000);
+            }
         }
 
         // Initialize the app
@@ -566,4 +777,3 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
-
