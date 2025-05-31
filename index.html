@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Smoother - Enhanced Playback</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #ffff00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+            margin-bottom: 1rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.5)); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .player-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 245, 255, 0.6);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .progress-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f5ff, #ff00ff, #ffff00);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s ease;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .visualizer {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .note-track {
+            position: absolute;
+            height: 20px;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.6), transparent);
+            border-radius: 10px;
+            transform-origin: left center;
+            animation: noteGlow 0.5s ease-in-out;
+        }
+
+        @keyframes noteGlow {
+            0% { transform: scaleY(0); opacity: 0; }
+            50% { transform: scaleY(1.2); opacity: 1; }
+            100% { transform: scaleY(1); opacity: 0.8; }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+            
+            .control-group {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">MIDI Smoother</h1>
+            <p class="subtitle">Enhanced Audio Playback with Real-time Visualization</p>
+        </div>
+
+        <div class="player-container">
+            <div class="controls">
+                <button class="play-btn" id="playBtn">▶</button>
+                
+                <div class="control-group">
+                    <label class="control-label">Tempo</label>
+                    <input type="range" class="slider" id="tempoSlider" min="0.5" max="2" step="0.1" value="1">
+                    <span id="tempoValue">1.0x</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Reverb</label>
+                    <input type="range" class="slider" id="reverbSlider" min="0" max="1" step="0.1" value="0.3">
+                    <span id="reverbValue">30%</span>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Volume</label>
+                    <input type="range" class="slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
+                    <span id="volumeValue">70%</span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+
+            <div class="visualizer" id="visualizer"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="noteCount">101</div>
+                <div class="stat-label">Total Notes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="duration">16.1s</div>
+                <div class="stat-label">Duration</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="currentNote">-</div>
+                <div class="stat-label">Current Note</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="playbackTime">0:00</div>
+                <div class="stat-label">Playback Time</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MidiSmoother {
+            constructor() {
+                this.audioContext = null;
+                this.masterGain = null;
+                this.reverbGain = null;
+                this.convolver = null;
+                this.isPlaying = false;
+                this.startTime = 0;
+                this.pauseTime = 0;
+                this.currentNotes = new Map();
+                this.scheduledNotes = [];
+                this.tempoMultiplier = 1;
+                
+                this.recordingData = {
+                    "recordingInfo": {
+                        "totalNotes": 101,
+                        "totalDuration": 16096,
+                        "timestamp": "2025-05-31T03:32:48.453Z"
+                    },
+                    "notes": [{"note": "A#", "octave": 5, "frequency": 955.54, "midiNote": 82, "startTime": 1657, "duration": 142, "startTimeSeconds": 1.66, "durationSeconds": 0.14}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 1569, "duration": 710, "startTimeSeconds": 1.57, "durationSeconds": 0.71}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 1569, "duration": 744, "startTimeSeconds": 1.57, "durationSeconds": 0.74}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 2390, "duration": 174, "startTimeSeconds": 2.39, "durationSeconds": 0.17}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 2459, "duration": 168, "startTimeSeconds": 2.46, "durationSeconds": 0.17}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 1964, "duration": 766, "startTimeSeconds": 1.96, "durationSeconds": 0.77}, {"note": "A", "octave": 5, "frequency": 880.17, "midiNote": 81, "startTime": 2578, "duration": 367, "startTimeSeconds": 2.58, "durationSeconds": 0.37}, {"note": "A", "octave": 6, "frequency": 1752.26, "midiNote": 93, "startTime": 2834, "duration": 159, "startTimeSeconds": 2.83, "durationSeconds": 0.16}, {"note": "F", "octave": 6, "frequency": 1388.89, "midiNote": 89, "startTime": 2821, "duration": 221, "startTimeSeconds": 2.82, "durationSeconds": 0.22}, {"note": "A", "octave": 5, "frequency": 869.4, "midiNote": 81, "startTime": 2993, "duration": 113, "startTimeSeconds": 2.99, "durationSeconds": 0.11}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 3106, "duration": 283, "startTimeSeconds": 3.11, "durationSeconds": 0.28}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 3544, "duration": 182, "startTimeSeconds": 3.54, "durationSeconds": 0.18}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 3987, "duration": 145, "startTimeSeconds": 3.99, "durationSeconds": 0.15}, {"note": "A", "octave": 6, "frequency": 1752.26, "midiNote": 93, "startTime": 3049, "duration": 1180, "startTimeSeconds": 3.05, "durationSeconds": 1.18}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 4145, "duration": 112, "startTimeSeconds": 4.15, "durationSeconds": 0.11}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 3448, "duration": 866, "startTimeSeconds": 3.45, "durationSeconds": 0.87}, {"note": "B", "octave": 5, "frequency": 990.53, "midiNote": 83, "startTime": 4229, "duration": 125, "startTimeSeconds": 4.23, "durationSeconds": 0.13}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 4354, "duration": 154, "startTimeSeconds": 4.35, "durationSeconds": 0.15}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 4285, "duration": 257, "startTimeSeconds": 4.29, "durationSeconds": 0.26}, {"note": "C#", "octave": 6, "frequency": 1111.65, "midiNote": 85, "startTime": 4599, "duration": 165, "startTimeSeconds": 4.6, "durationSeconds": 0.17}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 4743, "duration": 132, "startTimeSeconds": 4.74, "durationSeconds": 0.13}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 4764, "duration": 160, "startTimeSeconds": 4.76, "durationSeconds": 0.16}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 4425, "duration": 673, "startTimeSeconds": 4.43, "durationSeconds": 0.67}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 5098, "duration": 164, "startTimeSeconds": 5.1, "durationSeconds": 0.16}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 5056, "duration": 230, "startTimeSeconds": 5.06, "durationSeconds": 0.23}, {"note": "B", "octave": 5, "frequency": 993.22, "midiNote": 83, "startTime": 5335, "duration": 146, "startTimeSeconds": 5.34, "durationSeconds": 0.15}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 5029, "duration": 562, "startTimeSeconds": 5.03, "durationSeconds": 0.56}, {"note": "B", "octave": 4, "frequency": 492.57, "midiNote": 71, "startTime": 5481, "duration": 159, "startTimeSeconds": 5.48, "durationSeconds": 0.16}, {"note": "D#", "octave": 5, "frequency": 624.46, "midiNote": 75, "startTime": 5431, "duration": 330, "startTimeSeconds": 5.43, "durationSeconds": 0.33}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 5850, "duration": 144, "startTimeSeconds": 5.85, "durationSeconds": 0.14}, {"note": "D#", "octave": 6, "frequency": 1238.16, "midiNote": 87, "startTime": 5761, "duration": 261, "startTimeSeconds": 5.76, "durationSeconds": 0.26}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 5882, "duration": 202, "startTimeSeconds": 5.88, "durationSeconds": 0.2}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 5674, "duration": 563, "startTimeSeconds": 5.67, "durationSeconds": 0.56}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 6194, "duration": 104, "startTimeSeconds": 6.19, "durationSeconds": 0.1}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 6341, "duration": 514, "startTimeSeconds": 6.34, "durationSeconds": 0.51}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 6084, "duration": 860, "startTimeSeconds": 6.08, "durationSeconds": 0.86}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 6863, "duration": 151, "startTimeSeconds": 6.86, "durationSeconds": 0.15}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 7028, "duration": 103, "startTimeSeconds": 7.03, "durationSeconds": 0.1}, {"note": "F#", "octave": 6, "frequency": 1472.33, "midiNote": 90, "startTime": 6902, "duration": 320, "startTimeSeconds": 6.9, "durationSeconds": 0.32}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 7049, "duration": 199, "startTimeSeconds": 7.05, "durationSeconds": 0.2}, {"note": "C", "octave": 5, "frequency": 527.56, "midiNote": 72, "startTime": 7195, "duration": 187, "startTimeSeconds": 7.2, "durationSeconds": 0.19}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 7340, "duration": 146, "startTimeSeconds": 7.34, "durationSeconds": 0.15}, {"note": "A#", "octave": 5, "frequency": 942.08, "midiNote": 82, "startTime": 7346, "duration": 140, "startTimeSeconds": 7.35, "durationSeconds": 0.14}, {"note": "A#", "octave": 5, "frequency": 955.54, "midiNote": 82, "startTime": 7666, "duration": 206, "startTimeSeconds": 7.67, "durationSeconds": 0.21}, {"note": "F", "octave": 5, "frequency": 694.45, "midiNote": 77, "startTime": 7561, "duration": 356, "startTimeSeconds": 7.56, "durationSeconds": 0.36}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 8093, "duration": 151, "startTimeSeconds": 8.09, "durationSeconds": 0.15}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 7471, "duration": 939, "startTimeSeconds": 7.47, "durationSeconds": 0.94}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 8432, "duration": 221, "startTimeSeconds": 8.43, "durationSeconds": 0.22}, {"note": "A", "octave": 5, "frequency": 885.55, "midiNote": 81, "startTime": 8667, "duration": 159, "startTimeSeconds": 8.67, "durationSeconds": 0.16}, {"note": "A", "octave": 6, "frequency": 1768.41, "midiNote": 93, "startTime": 8693, "duration": 141, "startTimeSeconds": 8.69, "durationSeconds": 0.14}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 8847, "duration": 159, "startTimeSeconds": 8.85, "durationSeconds": 0.16}, {"note": "A", "octave": 5, "frequency": 880.17, "midiNote": 81, "startTime": 8896, "duration": 145, "startTimeSeconds": 8.9, "durationSeconds": 0.15}, {"note": "F", "octave": 6, "frequency": 1399.66, "midiNote": 89, "startTime": 7917, "duration": 1172, "startTimeSeconds": 7.92, "durationSeconds": 1.17}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 9133, "duration": 188, "startTimeSeconds": 9.13, "durationSeconds": 0.19}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 9333, "duration": 118, "startTimeSeconds": 9.33, "durationSeconds": 0.12}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 9611, "duration": 187, "startTimeSeconds": 9.61, "durationSeconds": 0.19}, {"note": "A", "octave": 6, "frequency": 1754.96, "midiNote": 93, "startTime": 9020, "duration": 1064, "startTimeSeconds": 9.02, "durationSeconds": 1.06}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 9944, "duration": 349, "startTimeSeconds": 9.94, "durationSeconds": 0.35}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 9472, "duration": 862, "startTimeSeconds": 9.47, "durationSeconds": 0.86}, {"note": "F", "octave": 6, "frequency": 1386.2, "midiNote": 89, "startTime": 10342, "duration": 178, "startTimeSeconds": 10.34, "durationSeconds": 0.18}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 10293, "duration": 324, "startTimeSeconds": 10.29, "durationSeconds": 0.32}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 10361, "duration": 307, "startTimeSeconds": 10.36, "durationSeconds": 0.31}, {"note": "C#", "octave": 6, "frequency": 1114.34, "midiNote": 85, "startTime": 10668, "duration": 138, "startTimeSeconds": 10.67, "durationSeconds": 0.14}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 10806, "duration": 166, "startTimeSeconds": 10.81, "durationSeconds": 0.17}, {"note": "C#", "octave": 5, "frequency": 554.48, "midiNote": 73, "startTime": 10785, "duration": 243, "startTimeSeconds": 10.79, "durationSeconds": 0.24}, {"note": "B", "octave": 5, "frequency": 987.84, "midiNote": 83, "startTime": 10396, "duration": 695, "startTimeSeconds": 10.4, "durationSeconds": 0.7}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11091, "duration": 194, "startTimeSeconds": 11.09, "durationSeconds": 0.19}, {"note": "F#", "octave": 5, "frequency": 742.9, "midiNote": 78, "startTime": 11098, "duration": 289, "startTimeSeconds": 11.1, "durationSeconds": 0.29}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 10972, "duration": 521, "startTimeSeconds": 10.97, "durationSeconds": 0.52}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11480, "duration": 172, "startTimeSeconds": 11.48, "durationSeconds": 0.17}, {"note": "C#", "octave": 6, "frequency": 1108.96, "midiNote": 85, "startTime": 11501, "duration": 248, "startTimeSeconds": 11.5, "durationSeconds": 0.25}, {"note": "D#", "octave": 5, "frequency": 624.46, "midiNote": 75, "startTime": 11501, "duration": 282, "startTimeSeconds": 11.5, "durationSeconds": 0.28}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 11665, "duration": 118, "startTimeSeconds": 11.67, "durationSeconds": 0.12}, {"note": "D#", "octave": 6, "frequency": 1251.62, "midiNote": 87, "startTime": 11791, "duration": 243, "startTimeSeconds": 11.79, "durationSeconds": 0.24}, {"note": "D#", "octave": 5, "frequency": 621.77, "midiNote": 75, "startTime": 11923, "duration": 132, "startTimeSeconds": 11.92, "durationSeconds": 0.13}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 11923, "duration": 200, "startTimeSeconds": 11.92, "durationSeconds": 0.2}, {"note": "B", "octave": 5, "frequency": 979.76, "midiNote": 83, "startTime": 11749, "duration": 496, "startTimeSeconds": 11.75, "durationSeconds": 0.5}, {"note": "F#", "octave": 5, "frequency": 740.2, "midiNote": 78, "startTime": 12291, "duration": 624, "startTimeSeconds": 12.29, "durationSeconds": 0.62}, {"note": "C", "octave": 5, "frequency": 524.87, "midiNote": 72, "startTime": 12925, "duration": 121, "startTimeSeconds": 12.93, "durationSeconds": 0.12}, {"note": "D#", "octave": 6, "frequency": 1248.93, "midiNote": 87, "startTime": 12123, "duration": 1076, "startTimeSeconds": 12.12, "durationSeconds": 1.08}, {"note": "C", "octave": 6, "frequency": 1052.44, "midiNote": 84, "startTime": 13280, "duration": 103, "startTimeSeconds": 13.28, "durationSeconds": 0.1}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 13057, "duration": 363, "startTimeSeconds": 13.06, "durationSeconds": 0.36}, {"note": "C", "octave": 5, "frequency": 522.18, "midiNote": 72, "startTime": 13426, "duration": 104, "startTimeSeconds": 13.43, "durationSeconds": 0.1}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 12915, "duration": 727, "startTimeSeconds": 12.92, "durationSeconds": 0.73}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 13642, "duration": 172, "startTimeSeconds": 13.64, "durationSeconds": 0.17}, {"note": "F#", "octave": 6, "frequency": 1485.79, "midiNote": 90, "startTime": 13733, "duration": 101, "startTimeSeconds": 13.73, "durationSeconds": 0.1}, {"note": "A#", "octave": 5, "frequency": 952.84, "midiNote": 82, "startTime": 13834, "duration": 130, "startTimeSeconds": 13.83, "durationSeconds": 0.13}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 13907, "duration": 120, "startTimeSeconds": 13.91, "durationSeconds": 0.12}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 14089, "duration": 181, "startTimeSeconds": 14.09, "durationSeconds": 0.18}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 14284, "duration": 103, "startTimeSeconds": 14.28, "durationSeconds": 0.1}, {"note": "C", "octave": 6, "frequency": 1038.98, "midiNote": 84, "startTime": 13502, "duration": 935, "startTimeSeconds": 13.5, "durationSeconds": 0.94}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 14465, "duration": 222, "startTimeSeconds": 14.47, "durationSeconds": 0.22}, {"note": "F", "octave": 6, "frequency": 1402.35, "midiNote": 89, "startTime": 13985, "duration": 868, "startTimeSeconds": 13.99, "durationSeconds": 0.87}, {"note": "A", "octave": 5, "frequency": 885.55, "midiNote": 81, "startTime": 14721, "duration": 146, "startTimeSeconds": 14.72, "durationSeconds": 0.15}, {"note": "A", "octave": 5, "frequency": 882.86, "midiNote": 81, "startTime": 14888, "duration": 146, "startTimeSeconds": 14.89, "durationSeconds": 0.15}, {"note": "F", "octave": 6, "frequency": 1391.58, "midiNote": 89, "startTime": 14867, "duration": 308, "startTimeSeconds": 14.87, "durationSeconds": 0.31}, {"note": "F", "octave": 5, "frequency": 702.52, "midiNote": 77, "startTime": 15187, "duration": 167, "startTimeSeconds": 15.19, "durationSeconds": 0.17}, {"note": "F", "octave": 5, "frequency": 699.83, "midiNote": 77, "startTime": 15637, "duration": 200, "startTimeSeconds": 15.64, "durationSeconds": 0.2}, {"note": "A", "octave": 6, "frequency": 1768.41, "midiNote": 93, "startTime": 14845, "duration": 1202, "startTimeSeconds": 14.85, "durationSeconds": 1.2}, {"note": "F", "octave": 6, "frequency": 1394.27, "midiNote": 89, "startTime": 15485, "duration": 610, "startTimeSeconds": 15.49, "durationSeconds": 0.61}, {"note": "B", "octave": 4, "frequency": 495.26, "midiNote": 71, "startTime": 15972, "duration": 124, "startTimeSeconds": 15.97, "durationSeconds": 0.12}]
+                };
+                
+                this.initializeAudio();
+                this.setupControls();
+                this.updateStats();
+            }
+
+            async initializeAudio() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Master gain
+                this.masterGain = this.audioContext.createGain();
+                this.masterGain.gain.value = 0.7;
+                
+                // Reverb setup
+                this.reverbGain = this.audioContext.createGain();
+                this.reverbGain.gain.value = 0.3;
+                
+                this.convolver = this.audioContext.createConvolver();
+                await this.createReverbImpulse();
+                
+                // Connect audio graph
+                this.masterGain.connect(this.audioContext.destination);
+                this.reverbGain.connect(this.convolver);
+                this.convolver.connect(this.masterGain);
+            }
+
+            async createReverbImpulse() {
+                const length = this.audioContext.sampleRate * 2;
+                const impulse = this.audioContext.createBuffer(2, length, this.audioContext.sampleRate);
+                
+                for (let channel = 0; channel < 2; channel++) {
+                    const channelData = impulse.getChannelData(channel);
+                    for (let i = 0; i < length; i++) {
+                        const decay = Math.pow(1 - i / length, 2);
+                        channelData[i] = (Math.random() * 2 - 1) * decay * 0.3;
+                    }
+                }
+                
+                this.convolver.buffer = impulse;
+            }
+
+            setupControls() {
+                const playBtn = document.getElementById('playBtn');
+                const tempoSlider = document.getElementById('tempoSlider');
+                const reverbSlider = document.getElementById('reverbSlider');
+                const volumeSlider = document.getElementById('volumeSlider');
+
+                playBtn.addEventListener('click', () => this.togglePlayback());
+                
+                tempoSlider.addEventListener('input', (e) => {
+                    this.tempoMultiplier = parseFloat(e.target.value);
+                    document.getElementById('tempoValue').textContent = `${this.tempoMultiplier.toFixed(1)}x`;
+                });
+                
+                reverbSlider.addEventListener('input', (e) => {
+                    const reverbAmount = parseFloat(e.target.value);
+                    this.reverbGain.gain.value = reverbAmount;
+                    document.getElementById('reverbValue').textContent = `${Math.round(reverbAmount * 100)}%`;
+                });
+                
+                volumeSlider.addEventListener('input', (e) => {
+                    const volume = parseFloat(e.target.value);
+                    this.masterGain.gain.value = volume;
+                    document.getElementById('volumeValue').textContent = `${Math.round(volume * 100)}%`;
+                });
+            }
+
+            async togglePlayback() {
+                if (!this.audioContext) {
+                    await this.initializeAudio();
+                }
+
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+
+                const playBtn = document.getElementById('playBtn');
+                
+                if (this.isPlaying) {
+                    this.stop();
+                    playBtn.textContent = '▶';
+                } else {
+                    this.play();
+                    playBtn.textContent = '⏸';
+                }
+            }
+
+            play() {
+                this.isPlaying = true;
+                this.startTime = this.audioContext.currentTime - this.pauseTime;
+                this.scheduleNotes();
+                this.updateProgress();
+            }
+
+            stop() {
+                this.isPlaying = false;
+                this.pauseTime = this.audioContext.currentTime - this.startTime;
+                
+                // Stop all scheduled notes
+                this.scheduledNotes.forEach(note => {
+                    if (note.source) {
+                        try {
+                            note.source.stop();
+                        } catch (e) {}
+                    }
+                });
+                this.scheduledNotes = [];
+                
+                // Stop current notes
+                this.currentNotes.forEach(note => {
+                    try {
+                        note.source.stop();
+                    } catch (e) {}
+                });
+                this.currentNotes.clear();
+            }
+
+            scheduleNotes() {
+                const currentTime = this.audioContext.currentTime;
+                const lookAhead = 0.1; // 100ms lookahead
+                
+                this.recordingData.notes.forEach((noteData, index) => {
+                    const noteStartTime = (noteData.startTimeSeconds / this.tempoMultiplier) + this.startTime;
+                    const noteDuration = noteData.durationSeconds / this.tempoMultiplier;
+                    
+                    if (noteStartTime >= currentTime && noteStartTime <= currentTime + lookAhead) {
+                        this.scheduleNote(noteData, noteStartTime, noteDuration, index);
+                    }
+                });
+
+                if (this.isPlaying) {
+                    requestAnimationFrame(() => this.scheduleNotes());
+                }
+            }
+
+            scheduleNote(noteData, startTime, duration, index) {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                const filterNode = this.audioContext.createBiquadFilter();
+                
+                // Enhanced oscillator with multiple harmonics
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(noteData.frequency, startTime);
+                
+                // Low-pass filter for warmth
+                filterNode.type = 'lowpass';
+                filterNode.frequency.setValueAtTime(noteData.frequency * 4, startTime);
+                filterNode.Q.setValueAtTime(1, startTime);
+                
+                // ADSR envelope
+                const attackTime = 0.02;
+                const decayTime = 0.1;
+                const sustainLevel = 0.6;
+                const releaseTime = 0.3;
+                
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.8, startTime + attackTime);
+                gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime + decayTime);
+                gainNode.gain.setValueAtTime(sustainLevel, startTime + duration - releaseTime);
+                gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+                
+                // Connect nodes
+                oscillator.connect(filterNode);
+                filterNode.connect(gainNode);
+                gainNode.connect(this.masterGain);
+                gainNode.connect(this.reverbGain);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+                
+                // Visualization
+                this.visualizeNote(noteData, startTime, duration, index);
+                
+                this.scheduledNotes.push({
+                    source: oscillator,
+                    startTime,
+                    duration,
+                    noteData,
+                    index
+                });
+            }
+
+            visualizeNote(noteData, startTime, duration, index) {
+                const visualizer = document.getElementById('visualizer');
+                const noteTrack = document.createElement('div');
+                noteTrack.className = 'note-track';
+                
+                const currentTime = this.audioContext.currentTime;
+                const relativeStartTime = startTime - currentTime;
+                
+                // Position based on frequency (higher = top)
+                const minFreq = 440; // A4
+                const maxFreq = 1760; // A6
+                const normalizedFreq = Math.max(0, Math.min(1, (noteData.frequency - minFreq) / (maxFreq - minFreq)));
+                const topPosition = (1 - normalizedFreq) * 80; // 80% of container height
+                
+                noteTrack.style.top = `${topPosition}%`;
+                noteTrack.style.left = '0%';
+                noteTrack.style.width = `${(duration / (this.recordingData.recordingInfo.totalDuration / 1000)) * 100}%`;
+                noteTrack.style.background = `linear-gradient(90deg, transparent, hsl(${(noteData.frequency / 10) % 360}, 70%, 60%), transparent)`;
+                
+                visualizer.appendChild(noteTrack);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (noteTrack.parentNode) {
+                        noteTrack.parentNode.removeChild(noteTrack);
+                    }
+                }, (relativeStartTime + duration + 1) * 1000);
+                
+                // Update current note display
+                setTimeout(() => {
+                    document.getElementById('currentNote').textContent = `${noteData.note}${noteData.octave}`;
+                }, relativeStartTime * 1000);
+            }
+
+            updateProgress() {
+                if (!this.isPlaying) return;
+                
+                const currentTime = this.audioContext.currentTime - this.startTime;
+                const totalDuration = this.recordingData.recordingInfo.totalDuration / 1000 / this.tempoMultiplier;
+                const progress = Math.min(currentTime / totalDuration, 1) * 100;
+                
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('currentTime').textContent = this.formatTime(currentTime);
+                document.getElementById('playbackTime').textContent = this.formatTime(currentTime);
+                
+                if (progress >= 100) {
+                    this.stop();
+                    this.pauseTime = 0;
+                    document.getElementById('playBtn').textContent = '▶';
+                    document.getElementById('progressFill').style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0:00';
+                    document.getElementById('playbackTime').textContent = '0:00';
+                    document.getElementById('currentNote').textContent = '-';
+                } else {
+                    requestAnimationFrame(() => this.updateProgress());
+                }
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            updateStats() {
+                const totalDurationSeconds = this.recordingData.recordingInfo.totalDuration / 1000;
+                document.getElementById('noteCount').textContent = this.recordingData.recordingInfo.totalNotes;
+                document.getElementById('duration').textContent = `${totalDurationSeconds.toFixed(1)}s`;
+                document.getElementById('totalTime').textContent = this.formatTime(totalDurationSeconds);
+            }
+        }
+
+        // Initialize the app
+        const midiSmoother = new MidiSmoother();
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+
